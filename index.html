@@ -31,6 +31,32 @@
             text-align: center;
         }
 		
+		@media screen and (max-width: 768px) {
+    table {
+        font-size: 12px;
+        overflow-x: auto;
+        display: block;
+    }
+    th, td {
+        padding: 6px;
+    }
+    input[type="number"] {
+        font-size: 14px;
+    }
+    #calculate button {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+    }
+    td[colspan="12"], td[colspan="14"], td[colspan="2"] {
+        display: block;
+        width: 100%;
+    }
+    tr.highlight td {
+        display: block;
+        width: 100%;
+    }
+}
     /* Attractive SLAB | RATE Header Row */
     tr.slab-header {
         background-color: #006d77; /* Teal/Navy tone */
