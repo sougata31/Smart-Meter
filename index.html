@@ -115,27 +115,27 @@
 </button>
     </td>
 </tr>
-        <tr id="energy-charge" class="amount-row">
+        <tr id="energy-charge" class="amount-row" style="display: none;">
             <td colspan="2">Energy Charge</td>
             <td colspan="12">0.00</td>
         </tr>
-        <tr id="meter-rent" class="amount-row">
+        <tr id="meter-rent" class="amount-row" style="display: none;">
             <td colspan="2">Meter Rent (Generic as per my knowledge)</td>
             <td colspan="12">0.00</td>
         </tr>
-        <tr id="prepaid-rebate" class="amount-row">
+        <tr id="prepaid-rebate" class="amount-row" style="display: none;">
             <td colspan="2">Prepaid Rebate</td>
             <td colspan="12">0.00</td>
         </tr>
-        <tr id="fixed-charge" class="amount-row">
+        <tr id="fixed-charge" class="amount-row" style="display: none;">
             <td colspan="2">Fixed/Demand Charge</td>
             <td colspan="12">0</td>
         </tr>
-        <tr id="govt-subsidy" class="amount-row">
+        <tr id="govt-subsidy" class="amount-row" style="display: none;">
             <td colspan="2">Govt Subsidy (Not Applicabe on Consumed unit > 300)</td>
             <td colspan="12">0.00</td>
         </tr>
-        <tr id="electricity-duty" class="amount-row">
+        <tr id="electricity-duty" class="amount-row" style="display: none;">
             <td colspan="2">Electricity Duty Charge (Only Applicabe on Consumed unit > 300)</td>
             <td colspan="12">0.00</td>
         </tr>
@@ -166,7 +166,11 @@
 		
 function calculateEnergyCharge() {
     const unit = parseFloat(document.getElementById("consumedUnitInput").value);
-    if (isNaN(unit) || unit <= 0) return;
+    const energyRow = document.getElementById("energy-charge");
+    if (isNaN(unit) || unit <= 0) {
+        energyRow.style.display = "none";
+        return;
+    }
 
     let remainingUnits = unit;
     let totalEnergyCharge = 0;
@@ -174,67 +178,77 @@ function calculateEnergyCharge() {
     for (let i = 1; i <= 6; i++) {
         const slab = parseFloat(document.getElementById(`slab-${i}`).textContent);
         const rate = parseFloat(document.getElementById(`rate-${i}`).textContent);
-        
-        let usedUnits = 0;
 
-        if (remainingUnits <= slab) {
-            usedUnits = remainingUnits;
-        } else {
-            usedUnits = slab;
-        }
-
+        const usedUnits = Math.min(remainingUnits, slab);
         totalEnergyCharge += usedUnits * rate;
         remainingUnits -= usedUnits;
 
         if (remainingUnits <= 0) break;
     }
 
-    document.querySelector('#energy-charge td[colspan="12"]').textContent = totalEnergyCharge.toFixed(2);
+    const value = totalEnergyCharge.toFixed(2);
+    document.querySelector('#energy-charge td[colspan="12"]').textContent = value;
+    energyRow.style.display = (parseFloat(value) !== 0) ? "table-row" : "none";
 }
 
 function calculateMeterRent() {
     const load = parseFloat(document.getElementById("connectedLoadInput").value);
     const meterRentCell = document.querySelector('#meter-rent td[colspan="12"]');
-    
+    const row = document.getElementById("meter-rent");
+
+    let value = "0.00";
     if (!isNaN(load) && load > 0) {
-        meterRentCell.textContent = "10.00";
-    } else {
-        meterRentCell.textContent = "0.00";
+        value = "10.00";
     }
+
+    meterRentCell.textContent = value;
+    row.style.display = (parseFloat(value) !== 0) ? "table-row" : "none";
 }
 function calculatePrepaidRebate() {
     const energyChargeText = document.querySelector('#energy-charge td[colspan="12"]').textContent;
     const rebateCell = document.querySelector('#prepaid-rebate td[colspan="12"]');
 
     const energyCharge = parseFloat(energyChargeText);
-    if (!isNaN(energyCharge)) {
-        const rebate = energyCharge * 0.03;
-        rebateCell.textContent = (-rebate).toFixed(2);  // ➖ Make it negative
-    } else {
-        rebateCell.textContent = "0.00";
-    }
+    const row = document.getElementById("prepaid-rebate");
+
+if (!isNaN(energyCharge)) {
+    const rebate = energyCharge * 0.03;
+    const value = -rebate;
+    rebateCell.textContent = value.toFixed(2);
+    row.style.display = (value !== 0) ? "table-row" : "none";
+} else {
+    rebateCell.textContent = "0.00";
+    row.style.display = "none";
+}
 }
 
 function calculateFixedCharge() {
     const load = parseFloat(document.getElementById("connectedLoadInput").value);
     const fixedChargeCell = document.querySelector('#fixed-charge td[colspan="12"]');
 
-    if (!isNaN(load) && load > 0) {
-        const charge = load <= 1 ? 30 : 30 * load;
-        fixedChargeCell.textContent = charge.toFixed(2);
-    } else {
-        fixedChargeCell.textContent = "0.00";
-    }
+    const row = document.getElementById("fixed-charge");
+
+if (!isNaN(load) && load > 0) {
+    const charge = load <= 1 ? 30 : 30 * load;
+    const value = charge.toFixed(2);
+    fixedChargeCell.textContent = value;
+    row.style.display = (parseFloat(value) !== 0) ? "table-row" : "none";
+} else {
+    fixedChargeCell.textContent = "0.00";
+    row.style.display = "none";
+}
 }
 
 function calculateSubsidy() {
     const unit = parseFloat(document.getElementById("consumedUnitInput").value);
     const load = parseFloat(document.getElementById("connectedLoadInput").value);
     const subsidyCell = document.querySelector('#govt-subsidy td[colspan="12"]');
+	const row = document.getElementById("govt-subsidy");
 
     // Guard clause: subsidy not applicable
     if (isNaN(unit) || isNaN(load) || unit <= 0 || load <= 0 || unit >= 300) {
         subsidyCell.textContent = "0.00";
+		row.style.display = "none";
         return;
     }
 
@@ -261,18 +275,22 @@ function calculateSubsidy() {
 
     const totalSubsidy = slabSubsidy + loadSubsidy;
     subsidyCell.textContent = (-totalSubsidy).toFixed(2);
+	row.style.display = (totalSubsidy !== 0) ? "table-row" : "none";
+
 }
 function calculateDutyCharge() {
     const unit = parseFloat(document.getElementById("consumedUnitInput").value);
     const energyCharge = parseFloat(document.querySelector('#energy-charge td[colspan="12"]').textContent);
-    const dutyCell = document.querySelector('#electricity-duty td[colspan="12"]'); // ✅ corrected
+    const dutyCell = document.querySelector('#electricity-duty td[colspan="12"]');
+    const row = document.getElementById("electricity-duty");
 
+    let value = 0;
     if (!isNaN(unit) && unit > 300 && !isNaN(energyCharge)) {
-        const duty = energyCharge * 0.100437;
-        dutyCell.textContent = duty.toFixed(2);
-    } else {
-        dutyCell.textContent = "0.00";
+        value = energyCharge * 0.100437;
     }
+
+    dutyCell.textContent = value.toFixed(2);
+    row.style.display = (value !== 0) ? "table-row" : "none";
 }
 function calculateGrossAmount() {
     const getValue = (selector) => {
