@@ -39,7 +39,10 @@
     box-sizing: border-box;
     text-align: center;
 }
-		
+		input::placeholder {
+    font-size: 10px; /* or whatever size you prefer */
+    color: #888;     /* optional: softer color for placeholder */
+}
 
     /* Attractive SLAB | RATE Header Row */
     tr.slab-header {
@@ -96,13 +99,13 @@
                 ENTER YOUR CONSUMED UNIT:
 				</td>
 				<td >
-                <input type="number" id="consumedUnitInput" placeholder="Enter units consumed">
+                <input type="number" id="consumedUnitInput" placeholder="units consumed">
             </td>
         </tr>
         <tr id="connected-load" class="highlight">
     <td>ENTER YOUR CONNECTED LOAD:</td>
     <td>
-        <input type="number" id="connectedLoadInput" placeholder="Enter connected load (kW)" max="10" oninput="validateConnectedLoad(this)">
+        <input type="number" id="connectedLoadInput" placeholder="connected load (kW)" max="10" oninput="validateConnectedLoad(this)">
         </td>
 </tr>
  <tr id="calculate" class="highlight">
